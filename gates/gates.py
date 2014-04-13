@@ -10,6 +10,7 @@ import socket
 import time
 import re
 import struct
+from pprint import pprint
 
 def myprint(*args, **kwargs):
     print(time.strftime("%c"), *args, **kwargs)
@@ -39,7 +40,8 @@ def decode_command(data):
         # DDoS!
         ip_address_count = struct.unpack("B", data[0x47])[0]
         ips = get_ip_addresses(data[0x4B:])
-        myprint("Got DDoS command! IPs count:", ip_address_count, "Hosts:\n", ips)
+        myprint("Got DDoS command!", ip_address_count, "Hosts:")
+        pprint(ips, indent=3)
 
     elif command == "\x02":
         # Stop DDoS
