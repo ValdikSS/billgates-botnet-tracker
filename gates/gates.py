@@ -60,15 +60,24 @@ hello = open('hello.bin', 'rb').read()
 ping = open('ping.bin', 'rb').read()
 save = open('unknown-commands.bin', 'w+b')
 
-s = socket.create_connection(('116.10.189.246', 36008))
-myprint("Connected")
-s.sendall(hello)
-myprint("Sent hello")
-data = s.recv(1024)
-myprint("Received server hello")
+def gates():
+    s = socket.create_connection(('116.10.189.246', 36008))
+    myprint("Connected")
+    s.sendall(hello)
+    myprint("Sent hello")
+    data = s.recv(1024)
+    myprint("Received server hello")
 
-while True:
-    s.sendall(ping)
-    data = s.recv(4096)
-    time.sleep(0.1)
-    decode_command(data)
+    while True:
+        s.sendall(ping)
+        data = s.recv(4096)
+        time.sleep(0.1)
+        decode_command(data)
+
+if __name__ == "__main__":
+    while True:
+        try:
+            gates()
+        except socket.error:
+            myprint("Connection lost. Reconnecting...")
+            time.sleep(5)

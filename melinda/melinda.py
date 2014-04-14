@@ -27,6 +27,7 @@ def hexdump(src, length=16):
     return ''.join(lines)
 
 def decode_command(data):
+    global server
     command = data[0]
     if command == "\x01":
         # DDoS!
@@ -64,21 +65,31 @@ hello = open('hello.bin', 'rb').read()
 ping = open('ping.bin', 'rb').read()
 save = open('unknown-commands.bin', 'w+b')
 
-servers = (('202.103.178.76', 10991), ('121.12.110.96', 10991), ('112.90.252.76', 10991), \
-    ('112.90.22.197', 10991), ('112.90.252.79', 10991))
+def melinda():
+    global server
+    servers = (('202.103.178.76', 10991), ('121.12.110.96', 10991), ('112.90.252.76', 10991), \
+        ('112.90.22.197', 10991), ('112.90.252.79', 10991))
 
-server = servers[0]
+    server = servers[0]
 
-if len(sys.argv) >= 2 and int(sys.argv[1]) < len(servers):
-    server = servers[int(sys.argv[1])]
+    if len(sys.argv) >= 2 and int(sys.argv[1]) < len(servers):
+        server = servers[int(sys.argv[1])]
+        
+    s = socket.create_connection(server)
+    myprint("Connected to server", server)
+    s.sendall(hello)
+    myprint("Sent hello")
 
-s = socket.create_connection(server)
-myprint("Connected to server", server)
-s.sendall(hello)
-myprint("Sent hello")
+    while True:
+        data = s.recv(4096)
+        s.sendall(ping)
+        time.sleep(0.1)
+        decode_command(data)
 
-while True:
-    data = s.recv(4096)
-    s.sendall(ping)
-    time.sleep(0.1)
-    decode_command(data)
+if __name__ == "__main__":
+    while True:
+        try:
+            melinda()
+        except socket.error:
+            myprint("Connection lost. Reconnecting...")
+            time.sleep(5)
